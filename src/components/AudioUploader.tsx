@@ -57,13 +57,13 @@ export default function AudioUploader({ onAudioSelect }: AudioUploaderProps) {
   };
 
   return (
-    <div className="w-full bg-[#8ACE00] border-4 border-black p-6 shadow-[8px_8px_0px_rgba(0,0,0,1)]">
-      <h2 className="text-4xl font-bold mb-4 brat-text">load your track.</h2>
+    <div className="w-full bg-theme-accent border-4 border-accent-foreground p-6 shadow-[8px_8px_0px_var(--color-foreground)]">
+      <h2 className="text-4xl font-bold mb-4 brat-text text-accent-foreground">load your track.</h2>
       
       <div 
         className={clsx(
-          "border-4 border-dashed rounded-none p-8 flex flex-col items-center justify-center transition-all cursor-pointer border-black",
-          isDragging ? "bg-black/10 scale-[1.02]" : "hover:bg-black/5"
+          "border-4 border-dashed rounded-none p-8 flex flex-col items-center justify-center transition-all cursor-pointer border-accent-foreground",
+          isDragging ? "bg-accent-foreground/10 scale-[1.02]" : "hover:bg-accent-foreground/5"
         )}
         onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
         onDragLeave={() => setIsDragging(false)}
@@ -71,12 +71,12 @@ export default function AudioUploader({ onAudioSelect }: AudioUploaderProps) {
         onClick={() => fileInputRef.current?.click()}
       >
         {isUploading ? (
-           <div className="text-black font-bold text-2xl brat-text animate-pulse">uploading track...</div>
+           <div className="text-accent-foreground font-bold text-2xl brat-text animate-pulse">uploading track...</div>
         ) : (
            <>
-             <Upload className="w-12 h-12 text-black mb-4" />
-             <p className="font-bold text-2xl brat-text">drag & drop audio</p>
-             <p className="text-sm opacity-70 text-center font-mono mt-2">.mp3 or .wav</p>
+             <Upload className="w-12 h-12 text-accent-foreground mb-4" />
+             <p className="font-bold text-2xl brat-text text-accent-foreground">drag & drop audio</p>
+             <p className="text-sm opacity-70 text-center font-mono mt-2 text-accent-foreground">.mp3 or .wav</p>
            </>
         )}
         <input 
@@ -89,25 +89,25 @@ export default function AudioUploader({ onAudioSelect }: AudioUploaderProps) {
       </div>
 
       <div className="mt-6 flex items-center justify-center gap-4">
-        <div className="h-1 bg-black flex-1"></div>
-        <span className="font-bold lowercase brat-text text-xl">or</span>
-        <div className="h-1 bg-black flex-1"></div>
+        <div className="h-1 bg-accent-foreground flex-1"></div>
+        <span className="font-bold lowercase brat-text text-xl text-accent-foreground">or</span>
+        <div className="h-1 bg-accent-foreground flex-1"></div>
       </div>
 
       <form onSubmit={handleUrlSubmit} className="mt-6 flex gap-4 items-end">
         <div className="relative flex-1">
-          <LinkIcon className="absolute left-0 bottom-3 w-6 h-6 text-black opacity-50" />
+          <LinkIcon className="absolute left-0 bottom-3 w-6 h-6 text-accent-foreground opacity-50" />
           <input 
             type="url" 
             placeholder="paste audio url..."
             value={urlInput}
             onChange={(e) => setUrlInput(e.target.value)}
-            className="w-full bg-transparent border-b-4 border-black py-2 pl-8 pr-4 outline-none placeholder-black/50 brat-text text-2xl"
+            className="w-full bg-transparent border-b-4 border-accent-foreground py-2 pl-8 pr-4 outline-none placeholder-accent-foreground/50 text-accent-foreground brat-text text-2xl"
           />
         </div>
         <button 
           type="submit"
-          className="bg-black text-[#8ACE00] px-6 py-2 font-bold brat-text text-2xl hover:scale-105 transition-transform"
+          className="bg-accent-foreground text-theme-accent px-6 py-2 font-bold brat-text text-2xl hover:scale-105 transition-transform"
         >
           load
         </button>

@@ -219,11 +219,11 @@ export default function LyricSyncEditor({ audioUrl, onSyncComplete }: LyricSyncE
   }, [currentIndex, syncedLines, mode, onSyncComplete]);
 
   return (
-    <div className="w-full bg-theme-accent border-4 border-foreground p-6 shadow-[8px_8px_0px_rgba(0,0,0,1)] flex flex-col gap-4">
+    <div className="w-full bg-theme-accent border-4 border-accent-foreground p-6 shadow-[8px_8px_0px_var(--color-foreground)] flex flex-col gap-4">
       <div className="flex justify-between items-center">
-        <h2 className="text-4xl font-bold brat-text">lyric studio.</h2>
+        <h2 className="text-4xl font-bold brat-text text-accent-foreground">lyric studio.</h2>
         {mode === "sync" && currentIndex < syncedLines.length && (
-          <span className="text-xl bg-foreground text-theme-accent px-4 py-1 animate-pulse font-bold brat-text">
+          <span className="text-xl bg-accent-foreground text-theme-accent px-4 py-1 animate-pulse font-bold brat-text">
             tap spacebar to sync
           </span>
         )}
@@ -231,7 +231,7 @@ export default function LyricSyncEditor({ audioUrl, onSyncComplete }: LyricSyncE
 
       {audioUrl && (
         <div 
-          className="bg-foreground/5 p-4 border-4 border-foreground relative outline-none focus:bg-foreground/10 transition-colors" 
+          className="bg-accent-foreground/5 p-4 border-4 border-accent-foreground relative outline-none focus:bg-accent-foreground/10 transition-colors" 
           tabIndex={0} 
           ref={wrapperRef}
         >
@@ -240,16 +240,16 @@ export default function LyricSyncEditor({ audioUrl, onSyncComplete }: LyricSyncE
           <div className="flex gap-4 items-center mt-4">
             <button
               onClick={togglePlay}
-              className="bg-foreground hover:bg-foreground/80 transition-colors p-3 text-theme-accent"
+              className="bg-accent-foreground hover:bg-accent-foreground/80 transition-colors p-3 text-theme-accent"
             >
               {isPlaying ? <Pause className="w-6 h-6" fill="currentColor" /> : <Play className="w-6 h-6" fill="currentColor" />}
             </button>
-            <div className="text-xl font-bold brat-text opacity-80">
+            <div className="text-xl font-bold brat-text opacity-80 text-accent-foreground">
               {currentIndex}/{syncedLines.length} lines synced
             </div>
             
             {mode === "sync" && (
-               <button onClick={() => { setMode("input"); setCurrentIndex(0); }} className="ml-auto flex items-center gap-2 text-xl opacity-70 hover:opacity-100 brat-text underline decoration-2">
+               <button onClick={() => { setMode("input"); setCurrentIndex(0); }} className="ml-auto flex items-center gap-2 text-xl opacity-70 hover:opacity-100 brat-text underline decoration-2 text-accent-foreground">
                   <RotateCcw className="w-5 h-5"/> reset sync
                </button>
             )}
@@ -260,18 +260,18 @@ export default function LyricSyncEditor({ audioUrl, onSyncComplete }: LyricSyncE
       {mode === "input" ? (
         <div className="flex flex-col gap-6 mt-4">
           {/* Auto Sync Section */}
-          <div className="bg-foreground/5 p-4 border-4 border-foreground">
-            <label className="text-2xl font-bold brat-text flex items-center gap-2 mb-2">
+          <div className="bg-accent-foreground/5 p-4 border-4 border-accent-foreground">
+            <label className="text-2xl font-bold brat-text flex items-center gap-2 mb-2 text-accent-foreground">
               <Search className="w-6 h-6" /> auto-sync (free)
             </label>
-            <p className="text-foreground/70 font-bold brat-text mb-4 leading-tight">
+            <p className="text-accent-foreground/70 font-bold brat-text mb-4 leading-tight">
               Type the song name and artist to magically grab perfectly synced lyrics from the internet.
             </p>
             <div className="flex gap-2">
               <input 
                 type="text" 
                 placeholder="e.g. 360 charli xcx" 
-                className="flex-1 bg-background border-4 border-foreground px-4 py-3 font-bold brat-text text-xl outline-none focus:bg-foreground/5"
+                className="flex-1 bg-background border-4 border-foreground px-4 py-3 font-bold brat-text text-xl outline-none focus:bg-foreground/5 text-foreground placeholder-foreground/50"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleAutoSync()}
@@ -279,7 +279,7 @@ export default function LyricSyncEditor({ audioUrl, onSyncComplete }: LyricSyncE
               <button 
                 onClick={handleAutoSync}
                 disabled={isSearching || !searchQuery}
-                className="bg-foreground text-theme-accent px-6 py-3 font-bold brat-text text-xl hover:scale-[1.02] transition-transform disabled:opacity-50 flex items-center gap-2"
+                className="bg-accent-foreground text-theme-accent px-6 py-3 font-bold brat-text text-xl hover:scale-[1.02] transition-transform disabled:opacity-50 flex items-center gap-2"
               >
                 {isSearching ? <><Loader2 className="animate-spin" /> searching...</> : "auto-sync"}
               </button>
@@ -288,17 +288,17 @@ export default function LyricSyncEditor({ audioUrl, onSyncComplete }: LyricSyncE
           </div>
 
           <div className="flex items-center gap-4">
-             <div className="flex-1 h-1 bg-foreground/20"></div>
-             <div className="font-bold brat-text text-xl text-foreground/50">OR MANUAL SYNC</div>
-             <div className="flex-1 h-1 bg-foreground/20"></div>
+             <div className="flex-1 h-1 bg-accent-foreground/20"></div>
+             <div className="font-bold brat-text text-xl text-accent-foreground/50">OR MANUAL SYNC</div>
+             <div className="flex-1 h-1 bg-accent-foreground/20"></div>
           </div>
 
           <div className="flex flex-col gap-3">
-            <label className="text-2xl font-bold brat-text flex items-center gap-2">
+            <label className="text-2xl font-bold brat-text flex items-center gap-2 text-accent-foreground">
               paste lyrics
             </label>
             <textarea
-              className="w-full h-48 bg-transparent border-4 border-foreground p-4 outline-none focus:bg-foreground/5 transition-colors resize-none brat-text text-4xl leading-[1.1]"
+              className="w-full h-48 bg-background text-foreground border-4 border-foreground placeholder-foreground/50 p-4 outline-none focus:bg-foreground/5 transition-colors resize-none brat-text text-4xl leading-[1.1]"
               placeholder="brat and it's the same&#10;but there's three more songs..."
               value={rawLyrics}
               onChange={(e) => setRawLyrics(e.target.value)}
@@ -306,32 +306,32 @@ export default function LyricSyncEditor({ audioUrl, onSyncComplete }: LyricSyncE
             <button
               onClick={startSync}
               disabled={!audioUrl || rawLyrics.trim().length === 0}
-              className="bg-foreground text-theme-accent py-4 font-bold text-3xl brat-text disabled:opacity-50 disabled:cursor-not-allowed hover:scale-[1.02] transition-all mt-2 shadow-[4px_4px_0px_rgba(0,0,0,0.3)]"
+              className="bg-accent-foreground text-theme-accent py-4 font-bold text-3xl brat-text disabled:opacity-50 disabled:cursor-not-allowed hover:scale-[1.02] transition-all mt-2 shadow-[4px_4px_0px_rgba(0,0,0,0.3)]"
             >
               start manual sync
             </button>
           </div>
         </div>
       ) : (
-        <div className="bg-transparent border-4 border-foreground p-4 h-64 overflow-y-auto space-y-2">
+        <div className="bg-transparent border-4 border-accent-foreground p-4 h-64 overflow-y-auto space-y-2">
           {syncedLines.map((line, i) => (
             <div 
               key={line.id}
               className={clsx(
                 "p-3 flex items-center justify-between transition-colors border-2",
-                i === currentIndex ? "bg-foreground text-theme-accent border-foreground" : 
-                i < currentIndex ? "bg-transparent border-foreground/20 text-foreground/50" : "bg-transparent border-transparent text-foreground/30"
+                i === currentIndex ? "bg-accent-foreground text-theme-accent border-accent-foreground" : 
+                i < currentIndex ? "bg-transparent border-accent-foreground/20 text-accent-foreground/50" : "bg-transparent border-transparent text-accent-foreground/30"
               )}
             >
               <div className="flex flex-col">
                 <span className="font-bold brat-text text-3xl">{line.text}</span>
                 {mode === "sync" && currentIndex >= syncedLines.length && (
-                  <div className="flex gap-2 items-center text-foreground/70 mt-2 font-mono text-sm">
+                  <div className="flex gap-2 items-center text-accent-foreground/70 mt-2 font-mono text-sm">
                     <span>start:</span>
                     <input 
                       type="number" 
                       step="0.05"
-                      className="w-16 bg-transparent border-b-2 border-foreground/50 text-center outline-none focus:border-foreground"
+                      className="w-16 bg-transparent border-b-2 border-accent-foreground/50 text-center outline-none focus:border-accent-foreground text-accent-foreground"
                       value={Number(line.start).toFixed(2)}
                       onChange={(e) => updateLyricTime(i, "start", parseFloat(e.target.value))}
                     />
@@ -339,7 +339,7 @@ export default function LyricSyncEditor({ audioUrl, onSyncComplete }: LyricSyncE
                     <input 
                       type="number" 
                       step="0.05"
-                      className="w-16 bg-transparent border-b-2 border-foreground/50 text-center outline-none focus:border-foreground"
+                      className="w-16 bg-transparent border-b-2 border-accent-foreground/50 text-center outline-none focus:border-accent-foreground text-accent-foreground"
                       value={Number(line.end).toFixed(2)}
                       onChange={(e) => updateLyricTime(i, "end", parseFloat(e.target.value))}
                     />
@@ -347,7 +347,7 @@ export default function LyricSyncEditor({ audioUrl, onSyncComplete }: LyricSyncE
                 )}
               </div>
               <div className="flex items-center">
-                {i < currentIndex && <CheckCircle2 className="text-foreground/50 w-6 h-6 ml-4" />}
+                {i < currentIndex && <CheckCircle2 className="text-accent-foreground/50 w-6 h-6 ml-4" />}
                 {i === currentIndex && <span className="w-4 h-4 rounded-full bg-theme-accent animate-pulse ml-4"></span>}
                 <button 
                   onClick={() => deleteLyric(i)} 
@@ -361,12 +361,12 @@ export default function LyricSyncEditor({ audioUrl, onSyncComplete }: LyricSyncE
           ))}
           {currentIndex >= syncedLines.length && syncedLines.length > 0 && (
              <div className="flex flex-col items-center mt-4 gap-2">
-               <div className="p-4 text-center font-bold text-foreground brat-text text-4xl animate-pulse">
+               <div className="p-4 text-center font-bold text-accent-foreground brat-text text-4xl animate-pulse">
                   sync complete!
                </div>
                <button 
                  onClick={() => onSyncComplete(syncedLines)}
-                 className="bg-foreground text-theme-accent px-4 py-2 font-bold brat-text text-xl hover:scale-[1.02] transition-transform"
+                 className="bg-accent-foreground text-theme-accent px-4 py-2 font-bold brat-text text-xl hover:scale-[1.02] transition-transform"
                >
                  apply time tweaks
                </button>

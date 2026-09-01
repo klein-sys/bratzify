@@ -14,6 +14,7 @@ export interface TemplateConfig {
     background: string;
     foreground: string;
     accent: string;
+    accentForeground: string;
     fontFamily: string;
   };
   customOptions?: TemplateOption[];
@@ -28,6 +29,7 @@ export const TEMPLATES: Record<string, TemplateConfig> = {
       background: "#ffffff",
       foreground: "#000000",
       accent: "#8ACE00",
+      accentForeground: "#000000",
       fontFamily: "Arial, Helvetica, sans-serif",
     }
   },
@@ -39,6 +41,7 @@ export const TEMPLATES: Record<string, TemplateConfig> = {
       background: "#050505",
       foreground: "#FF7A00",
       accent: "#FF7A00",
+      accentForeground: "#050505",
       fontFamily: "Impact, sans-serif",
     },
     customOptions: [
@@ -55,6 +58,21 @@ export const TEMPLATES: Record<string, TemplateConfig> = {
           { value: "vhs", label: "VHS Glitch" }
         ]
       }
+    ]
+  },
+  minimalist: {
+    id: "minimalist",
+    name: "Minimalist Editorial",
+    description: "Quiet sophistication. Clean editorial typography, massive negative space, and slow ambient depth.",
+    theme: {
+      background: "#F7F6F3",
+      foreground: "#111111",
+      accent: "#FBF3DB",
+      accentForeground: "#956400",
+      fontFamily: "'Playfair Display', serif",
+    },
+    customOptions: [
+      { id: "ambientColor", label: "Ambient Glow", type: "color", defaultValue: "#EAEAEA" }
     ]
   }
 };

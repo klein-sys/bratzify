@@ -6,10 +6,14 @@ import LyricSyncEditor, { SyncedLyric } from "@/components/LyricSyncEditor";
 import { Player } from "@remotion/player";
 import { TEMPLATES, DEFAULT_TEMPLATE } from "@/lib/templates";
 import { BratzTemplate } from "@/remotion/templates/BratzTemplate";
+import { FisheyeTemplate } from "@/remotion/templates/FisheyeTemplate";
+import { MinimalistTemplate } from "@/remotion/templates/MinimalistTemplate";
 
 // Map template IDs to their React components for the live preview
 const TemplateComponents: Record<string, React.FC<any>> = {
   bratz: BratzTemplate,
+  fisheye: FisheyeTemplate,
+  minimalist: MinimalistTemplate,
 };
 
 export default function Home() {
@@ -42,6 +46,7 @@ export default function Home() {
     document.documentElement.style.setProperty("--theme-accent", activeTemplate.theme.accent);
     document.documentElement.style.setProperty("--background", activeTemplate.theme.background);
     document.documentElement.style.setProperty("--foreground", activeTemplate.theme.foreground);
+    document.documentElement.style.setProperty("--accent-foreground", activeTemplate.theme.accentForeground || "#000000");
   }, [activeTemplate]);
 
   const handleReset = () => {
@@ -116,7 +121,7 @@ export default function Home() {
             {(audioUrl || syncedLyrics.length > 0) && (
               <button 
                 onClick={handleReset} 
-                className="bg-transparent border-4 border-foreground text-foreground px-6 py-2 font-bold brat-text hover:bg-foreground hover:text-theme-accent transition-colors text-2xl lg:mt-2 shadow-[4px_4px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[4px] hover:translate-y-[4px]"
+                className="bg-transparent border-4 border-foreground text-foreground px-6 py-2 font-bold brat-text hover:bg-foreground hover:text-theme-accent transition-colors text-2xl lg:mt-2 shadow-[4px_4px_0px_var(--color-foreground)] hover:shadow-none hover:translate-x-[4px] hover:translate-y-[4px]"
               >
                 start over
               </button>
@@ -132,7 +137,7 @@ export default function Home() {
                   key={tpl.id}
                   onClick={() => setTemplateId(tpl.id)}
                   className={`px-4 py-2 font-bold brat-text text-xl border-4 border-foreground transition-colors whitespace-nowrap ${
-                    templateId === tpl.id ? "bg-foreground text-theme-accent" : "bg-transparent text-foreground hover:bg-foreground/10"
+                    templateId === tpl.id ? "bg-theme-accent text-accent-foreground" : "bg-transparent text-foreground hover:bg-foreground/10"
                   }`}
                 >
                   {tpl.name}
@@ -158,7 +163,7 @@ export default function Home() {
                       <select 
                         value={templateOptions[opt.id] || opt.defaultValue}
                         onChange={(e) => setTemplateOptions(prev => ({ ...prev, [opt.id]: e.target.value }))}
-                        className="bg-transparent border-2 border-foreground px-2 py-1 font-bold brat-text text-xl outline-none"
+                        className="bg-background text-foreground border-2 border-foreground px-2 py-1 font-bold brat-text text-xl outline-none"
                       >
                         {opt.options.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
                       </select>
@@ -179,10 +184,10 @@ export default function Home() {
 
         {/* Right Panel: Preview & Export */}
         <div className="flex flex-col gap-6 lg:sticky lg:top-8 mt-12 lg:mt-0">
-          <div className="bg-theme-accent border-4 border-foreground p-6 shadow-[8px_8px_0px_rgba(0,0,0,1)] transition-colors duration-500">
-            <h2 className="text-4xl font-bold brat-text mb-6 text-center text-foreground">live preview.</h2>
+          <div className="bg-theme-accent border-4 border-accent-foreground p-6 shadow-[8px_8px_0px_var(--color-foreground)] transition-colors duration-500">
+            <h2 className="text-4xl font-bold brat-text mb-6 text-center text-accent-foreground">live preview.</h2>
             
-            <div className="border-4 border-foreground aspect-[9/16] bg-foreground max-w-[320px] mx-auto w-full relative overflow-hidden">
+            <div className="border-4 border-accent-foreground aspect-[9/16] bg-foreground max-w-[320px] mx-auto w-full relative overflow-hidden">
               <Player
                 component={ActiveComponent}
                 inputProps={{ lyrics: syncedLyrics, audioUrl, startFrameOffset, ...templateOptions }}
@@ -196,16 +201,17 @@ export default function Home() {
                 }}
                 controls
                 autoPlay={false}
+                acknowledgeRemotionLicense={true}
               />
             </div>
             
             <div className="mt-8 flex justify-center flex-col items-center gap-4">
                {isExportSuccess ? (
-                 <div className="text-foreground text-center font-bold flex flex-col items-center">
+                 <div className="text-accent-foreground text-center font-bold flex flex-col items-center">
                    <p className="text-4xl brat-text mb-4 animate-pulse">download complete!</p>
                    <button 
                      onClick={() => setIsExportSuccess(false)}
-                     className="bg-transparent border-4 border-foreground text-foreground px-6 py-2 brat-text text-2xl hover:bg-foreground hover:text-theme-accent transition-colors shadow-[4px_4px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[4px] hover:translate-y-[4px]"
+                     className="bg-transparent border-4 border-accent-foreground text-accent-foreground px-6 py-2 brat-text text-2xl hover:bg-accent-foreground hover:text-theme-accent transition-colors shadow-[4px_4px_0px_var(--color-accent-foreground)] hover:shadow-none hover:translate-x-[4px] hover:translate-y-[4px]"
                    >
                      export another
                    </button>
@@ -213,31 +219,31 @@ export default function Home() {
                ) : (
                  <>
                    <div className="flex gap-4 items-center mb-2">
-                      <span className="text-xl font-bold brat-text text-foreground">export quality:</span>
+                      <span className="text-xl font-bold brat-text text-accent-foreground">export quality:</span>
                       <button 
                         onClick={() => setQuality("high")}
-                        className={`px-4 py-1 border-4 border-foreground font-bold brat-text text-xl ${quality === "high" ? "bg-foreground text-theme-accent shadow-[2px_2px_0px_rgba(0,0,0,1)]" : "bg-transparent text-foreground"}`}
+                        className={`px-4 py-1 border-4 border-accent-foreground font-bold brat-text text-xl ${quality === "high" ? "bg-accent-foreground text-theme-accent shadow-[2px_2px_0px_var(--color-accent-foreground)]" : "bg-transparent text-accent-foreground"}`}
                         disabled={isExporting}
                       >
                         high (1080p)
                       </button>
                       <button 
                         onClick={() => setQuality("fast")}
-                        className={`px-4 py-1 border-4 border-foreground font-bold brat-text text-xl ${quality === "fast" ? "bg-foreground text-theme-accent shadow-[2px_2px_0px_rgba(0,0,0,1)]" : "bg-transparent text-foreground"}`}
+                        className={`px-4 py-1 border-4 border-accent-foreground font-bold brat-text text-xl ${quality === "fast" ? "bg-accent-foreground text-theme-accent shadow-[2px_2px_0px_var(--color-accent-foreground)]" : "bg-transparent text-accent-foreground"}`}
                         disabled={isExporting}
                       >
                         fast (draft)
                       </button>
                    </div>
                    <button 
-                      className="bg-foreground text-theme-accent px-8 py-4 font-bold text-3xl brat-text hover:scale-[1.02] transition-transform shadow-[4px_4px_0px_rgba(0,0,0,0.5)] disabled:opacity-50 disabled:cursor-not-allowed w-full max-w-sm"
+                      className="bg-accent-foreground text-theme-accent px-8 py-4 font-bold text-3xl brat-text hover:scale-[1.02] transition-transform shadow-[4px_4px_0px_var(--color-accent-foreground)] disabled:opacity-50 disabled:cursor-not-allowed w-full max-w-sm"
                       onClick={handleExport}
                       disabled={isExporting || syncedLyrics.length === 0}
                    >
                      {isExporting ? "rendering..." : "export video."}
                    </button>
                    {isExporting && (
-                     <p className="text-sm text-foreground font-bold animate-pulse mt-2 text-center">
+                     <p className="text-sm text-accent-foreground font-bold animate-pulse mt-2 text-center">
                        please wait, server is rendering your mp4...
                      </p>
                    )}
