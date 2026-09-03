@@ -42,10 +42,11 @@ All the following steps were successfully implemented and deployed.
 - **Frontend Build**: Ran `npm run build` locally, successfully verifying 0 static generation errors and 0 ESLint warnings in the Next.js export.
 
 ### F. New Features (Sept 3, 2026)
-- **Gemini AI Auto-Sync**: Added a new AI sync feature using Gemini 3.7 Flash. 
+- **Gemini AI Auto-Sync**: Added a new AI sync feature using the Gemini API. 
   - Integrated `@google/genai` on the backend to upload the audio track directly to the Gemini API.
   - Implemented a structured output JSON schema (via Zod/Schema) to force Gemini to return exactly timestamped lyrics natively.
   - Added a "✨ AI Sync (Gemini)" button in the frontend `LyricSyncEditor.tsx` for songs that aren't on `lrclib.net`.
+  - Added a Model Selector dropdown in the UI allowing users to switch between `gemini-3.5-flash-lite` (default, fast, avoids 503 errors) and `gemini-3.7-flash` (higher accuracy).
 
 ## 3. Live Environments
 - **Frontend**: Hosted on Vercel (`https://bratzify.vercel.app`)
