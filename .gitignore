@@ -47,7 +47,6 @@ next-env.d.ts
 remotion-bundle/  
 
 # Agent & AI config files
-.agents/
 AGENTS.md
 skills-lock.json
 .gemini/
