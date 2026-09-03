@@ -3,7 +3,6 @@
 import React, { useState, useRef } from "react";
 import { Upload, Link as LinkIcon } from "lucide-react";
 import clsx from "clsx";
-import { upload } from "@vercel/blob/client";
 
 interface AudioUploaderProps {
   onAudioSelect: (url: string) => void;
@@ -82,13 +81,16 @@ export default function AudioUploader({ onAudioSelect }: AudioUploaderProps) {
   };
 
   return (
-    <div className="w-full brutal-card p-6">
-      <h2 className="text-4xl font-bold mb-4 brat-text text-accent-foreground">load your track.</h2>
+    <div className="w-full flex flex-col gap-4">
+      <h2 className="text-xl font-bold font-sans uppercase tracking-widest text-foreground flex items-center gap-2">
+        <span className="w-2 h-2 rounded-full bg-theme-accent opacity-50" />
+        Audio Source
+      </h2>
       
       <div 
         className={clsx(
-          "border-4 border-dashed rounded-none p-8 flex flex-col items-center justify-center transition-all cursor-pointer border-accent-foreground",
-          isDragging ? "bg-accent-foreground/10 scale-[1.02]" : "hover:bg-accent-foreground/5"
+          "border border-dashed rounded-lg p-8 flex flex-col items-center justify-center transition-all cursor-pointer border-line",
+          isDragging ? "bg-theme-accent/10 border-theme-accent scale-[1.02]" : "hover:bg-fill-ghost hover:border-line-strong"
         )}
         onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
         onDragLeave={() => setIsDragging(false)}
@@ -96,12 +98,12 @@ export default function AudioUploader({ onAudioSelect }: AudioUploaderProps) {
         onClick={() => fileInputRef.current?.click()}
       >
         {isUploading ? (
-           <div className="text-accent-foreground font-bold text-2xl brat-text animate-pulse">uploading track...</div>
+           <div className="text-theme-accent font-mono text-sm uppercase tracking-widest animate-pulse">Uploading Track...</div>
         ) : (
            <>
-             <Upload className="w-12 h-12 text-accent-foreground mb-4" />
-             <p className="font-bold text-2xl brat-text text-accent-foreground">drag & drop audio</p>
-             <p className="text-sm opacity-70 text-center font-mono mt-2 text-accent-foreground">.mp3 or .wav</p>
+             <Upload className="w-10 h-10 text-text-dim mb-4" />
+             <p className="font-sans font-bold text-foreground text-lg tracking-tight">Drag & Drop Audio</p>
+             <p className="text-xs text-text-dim font-mono mt-2 uppercase tracking-widest">.mp3 or .wav</p>
            </>
         )}
         <input 
@@ -113,30 +115,31 @@ export default function AudioUploader({ onAudioSelect }: AudioUploaderProps) {
         />
       </div>
 
-      <div className="mt-6 flex items-center justify-center gap-4">
-        <div className="h-1 bg-accent-foreground flex-1"></div>
-        <span className="font-bold lowercase brat-text text-xl text-accent-foreground">or</span>
-        <div className="h-1 bg-accent-foreground flex-1"></div>
+      <div className="mt-2 flex items-center justify-center gap-4">
+        <div className="h-px bg-line flex-1"></div>
+        <span className="font-mono text-xs text-text-dim uppercase tracking-widest">OR IMPORT</span>
+        <div className="h-px bg-line flex-1"></div>
       </div>
 
-      <form onSubmit={handleUrlSubmit} className="mt-6 flex gap-4 items-end">
-        <div className="relative flex-1">
-          <LinkIcon className="absolute left-0 bottom-3 w-6 h-6 text-accent-foreground opacity-50" />
+      <form onSubmit={handleUrlSubmit} className="mt-2 flex flex-col sm:flex-row gap-3 items-end">
+        <div className="relative flex-1 w-full">
+          <LinkIcon className="absolute left-3 bottom-3 w-4 h-4 text-text-dim" />
           <input 
             type="url" 
-            placeholder="paste audio url..."
+            placeholder="Paste audio URL..."
             value={urlInput}
             onChange={(e) => setUrlInput(e.target.value)}
-            className="w-full bg-transparent border-b-4 border-accent-foreground py-2 pl-8 pr-4 outline-none placeholder-accent-foreground/50 text-accent-foreground brat-text text-2xl"
+            className="w-full bg-fill-ghost border border-line rounded py-2 pl-9 pr-4 outline-none placeholder-text-dimmer text-foreground font-mono text-sm focus:border-theme-accent transition-colors"
           />
         </div>
         <button 
           type="submit"
-          className="brutal-btn px-6 py-2 text-2xl"
+          className="premium-btn w-full sm:w-auto"
         >
-          load
+          Load
         </button>
       </form>
     </div>
   );
 }
+
