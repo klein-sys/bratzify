@@ -114,7 +114,7 @@ If the audio is completely instrumental or contains no vocals, return an empty a
 If the audio contains a long instrumental intro or break, make sure the start and end times strictly wrap the vocal lines. Don't let lyrics stay on screen during long instrumental breaks.`;
 
     const response = await ai.models.generateContent({
-      model: 'gemini-3.7-flash',
+      model: 'gemini-3.5-flash-lite',
       contents: [
         {
           inlineData: {
