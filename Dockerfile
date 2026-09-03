@@ -28,7 +28,7 @@ COPY package*.json ./
 RUN npm install
 
 # Download the Remotion browser during the Docker build so it doesn't hang downloading it at runtime!
-RUN npx --yes @remotion/cli@4.0.519 browser ensure
+RUN npx --yes -p @remotion/cli@4.0.519 remotion browser ensure
 
 # Copy source code
 COPY . .
