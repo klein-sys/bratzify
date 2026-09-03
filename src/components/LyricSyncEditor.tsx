@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import WaveSurfer from "wavesurfer.js";
-import { Play, Pause, RotateCcw, CheckCircle2, Search, Loader2, X } from "lucide-react";
+import { Play, Pause, RotateCcw, CheckCircle2, Search, Loader2, X, Sparkles } from "lucide-react";
 import clsx from "clsx";
 import { motion, AnimatePresence } from "framer-motion";
 import RegionsPlugin from "wavesurfer.js/plugins/regions";
@@ -35,6 +35,9 @@ export default function LyricSyncEditor({ audioUrl, onSyncComplete }: LyricSyncE
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearching, setIsSearching] = useState(false);
   const [searchError, setSearchError] = useState("");
+
+  const [isGeminiSyncing, setIsGeminiSyncing] = useState(false);
+  const [geminiError, setGeminiError] = useState("");
 
   useEffect(() => {
     if (!audioUrl || !containerRef.current) return;
@@ -192,6 +195,58 @@ export default function LyricSyncEditor({ audioUrl, onSyncComplete }: LyricSyncE
       setSearchError("Error searching for lyrics.");
     }
     setIsSearching(false);
+  };
+
+  const handleGeminiSync = async () => {
+    if (!audioUrl) return;
+    setIsGeminiSyncing(true);
+    setGeminiError("");
+
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/gemini-sync`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ audioUrl })
+      });
+      const data = await res.json();
+      
+      if (!res.ok) {
+        setGeminiError(data.error || "Failed to sync with Gemini.");
+        setIsGeminiSyncing(false);
+        return;
+      }
+
+      if (data.lyrics && data.lyrics.length > 0) {
+        const result: SyncedLyric[] = data.lyrics.map((l: any, i: number) => ({
+          id: `lyric-gemini-${i}`,
+          text: l.text,
+          start: l.start,
+          end: l.end
+        }));
+
+        setSyncedLines(result);
+        setCurrentIndex(result.length); // mark all as done
+        setMode("sync");
+        
+        regionsRef.current?.clearRegions();
+        result.forEach(lyric => {
+          regionsRef.current?.addRegion({
+            id: lyric.id,
+            start: lyric.start,
+            end: lyric.end,
+            content: lyric.text,
+            color: "rgba(255, 122, 0, 0.4)",
+            drag: true,
+            resize: true,
+          });
+        });
+      } else {
+        setGeminiError("Gemini didn't find any vocals or returned an empty response.");
+      }
+    } catch (e) {
+      setGeminiError("Error connecting to Gemini sync server.");
+    }
+    setIsGeminiSyncing(false);
   };
 
   useEffect(() => {
@@ -358,6 +413,23 @@ export default function LyricSyncEditor({ audioUrl, onSyncComplete }: LyricSyncE
               </button>
             </div>
             {searchError && <p className="text-red-700 font-bold brat-text mt-2">{searchError}</p>}
+          </div>
+
+          <div className="bg-accent-foreground/5 p-4 border-4 border-accent-foreground">
+            <label className="text-2xl font-bold brat-text flex items-center gap-2 mb-2 text-accent-foreground">
+              <Sparkles className="w-6 h-6" /> AI Sync (Gemini)
+            </label>
+            <p className="text-accent-foreground/70 font-bold brat-text mb-4 leading-tight">
+              Can't find lyrics online? Let Gemini 3.7 Flash listen to your audio and transcribe it perfectly.
+            </p>
+            <button 
+              onClick={handleGeminiSync}
+              disabled={isGeminiSyncing || !audioUrl}
+              className="brutal-btn w-full py-3 disabled:opacity-50 flex items-center justify-center gap-2 text-xl"
+            >
+              {isGeminiSyncing ? <><Loader2 className="animate-spin" /> Analyzing audio with Gemini...</> : "✨ start AI sync"}
+            </button>
+            {geminiError && <p className="text-red-700 font-bold brat-text mt-2">{geminiError}</p>}
           </div>
 
           <div className="flex items-center gap-4">

@@ -80,6 +80,8 @@ app.post('/api/upload', upload.single('file'), async (req, res) => {
   }
 });
 
+import { GoogleGenAI, Type } from '@google/genai';
+
 // Progress endpoint
 app.get('/api/progress', (req, res) => {
   const id = req.query.id as string;
@@ -87,6 +89,69 @@ app.get('/api/progress', (req, res) => {
   const progress = activeRenders.get(id);
   if (!progress) return res.status(404).json({ error: "Render not found" });
   res.json(progress);
+});
+
+// Gemini Sync endpoint
+app.post('/api/gemini-sync', async (req, res) => {
+  try {
+    const { audioUrl } = req.body;
+    if (!audioUrl) return res.status(400).json({ error: "Missing audioUrl" });
+    if (!process.env.GEMINI_API_KEY) return res.status(500).json({ error: "GEMINI_API_KEY is missing on the server" });
+
+    console.log("[Gemini Sync] Downloading audio from:", audioUrl);
+    const fetchRes = await fetch(audioUrl);
+    if (!fetchRes.ok) throw new Error("Failed to download audio for Gemini sync");
+    
+    const buffer = Buffer.from(await fetchRes.arrayBuffer());
+    console.log(`[Gemini Sync] Downloaded ${buffer.length} bytes. Sending to Gemini...`);
+
+    const ai = new GoogleGenAI({});
+    
+    const prompt = `You are a professional audio transcriber and lyric synchronizer.
+Listen to the attached audio track. Transcribe the vocal lyrics line by line.
+For each line, provide the exact 'start' timestamp and 'end' timestamp in seconds.
+If the audio is completely instrumental or contains no vocals, return an empty array.
+If the audio contains a long instrumental intro or break, make sure the start and end times strictly wrap the vocal lines. Don't let lyrics stay on screen during long instrumental breaks.`;
+
+    const response = await ai.models.generateContent({
+      model: 'gemini-3.7-flash',
+      contents: [
+        {
+          inlineData: {
+            mimeType: "audio/mp3",
+            data: buffer.toString("base64")
+          }
+        },
+        prompt
+      ],
+      config: {
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: Type.ARRAY,
+          items: {
+            type: Type.OBJECT,
+            properties: {
+              text: { type: Type.STRING },
+              start: { type: Type.NUMBER },
+              end: { type: Type.NUMBER }
+            },
+            required: ["text", "start", "end"]
+          }
+        }
+      }
+    });
+
+    if (response.text) {
+      const parsed = JSON.parse(response.text);
+      console.log(`[Gemini Sync] Success. Returned ${parsed.length} lines.`);
+      return res.json({ lyrics: parsed });
+    } else {
+      throw new Error("Gemini returned an empty response.");
+    }
+  } catch (error: any) {
+    console.error("[Gemini Sync] Error:", error);
+    res.status(500).json({ error: error.message });
+  }
 });
 
 // Render endpoint

@@ -41,6 +41,12 @@ All the following steps were successfully implemented and deployed.
 - **TypeScript Integrity**: Added a strict `tsconfig.json` to the `server/` directory enabling `esModuleInterop`. This resolved 100+ hidden module resolution errors in the backend IDE environment, guaranteeing 100% type safety.
 - **Frontend Build**: Ran `npm run build` locally, successfully verifying 0 static generation errors and 0 ESLint warnings in the Next.js export.
 
+### F. New Features (Sept 3, 2026)
+- **Gemini AI Auto-Sync**: Added a new AI sync feature using Gemini 3.7 Flash. 
+  - Integrated `@google/genai` on the backend to upload the audio track directly to the Gemini API.
+  - Implemented a structured output JSON schema (via Zod/Schema) to force Gemini to return exactly timestamped lyrics natively.
+  - Added a "✨ AI Sync (Gemini)" button in the frontend `LyricSyncEditor.tsx` for songs that aren't on `lrclib.net`.
+
 ## 3. Live Environments
 - **Frontend**: Hosted on Vercel (`https://bratzify.vercel.app`)
 - **Backend**: Hosted on Render (`https://bratzify.onrender.com`)

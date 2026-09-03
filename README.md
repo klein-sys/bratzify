@@ -11,8 +11,9 @@ Bratzify eliminates the need for expensive, complex video editing software like 
 With Bratzify, you can:
 1. **Upload any audio track** straight from your computer or phone.
 2. **Auto-fetch & sync lyrics** perfectly to the beat using an interactive, real-time sync editor.
-3. **Customize the aesthetic** by choosing different templates (like the classic "Brat" style or the distorted "Fisheye"), picking custom colors, or uploading your own background media.
-4. **Export to MP4** with a single click, and watch as a cloud engine renders your video in pristine 1080p quality, ready to post on TikTok, Instagram Reels, or YouTube Shorts.
+3. **AI Sync with Gemini** - Can't find the lyrics online? Use Gemini 3.7 Flash to instantly transcribe and timestamp your audio track natively!
+4. **Customize the aesthetic** by choosing different templates (like the classic "Brat" style or the distorted "Fisheye"), picking custom colors, or uploading your own background media.
+5. **Export to MP4** with a single click, and watch as a cloud engine renders your video in pristine 1080p quality, ready to post on TikTok, Instagram Reels, or YouTube Shorts.
 
 ---
 

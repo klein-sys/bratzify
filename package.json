@@ -12,7 +12,7 @@
     "lint": "eslint"
   },
   "dependencies": {
-    "@google/genai": "^2.20.0",
+    "@google/genai": "^2.21.0",
     "@remotion/bundler": "^4.0.519",
     "@remotion/google-fonts": "^4.0.519",
     "@remotion/player": "^4.0.519",
@@ -31,7 +31,8 @@
     "react-dom": "19.2.8",
     "remotion": "^4.0.519",
     "tailwind-merge": "^3.6.0",
-    "wavesurfer.js": "^7.12.11"
+    "wavesurfer.js": "^7.12.11",
+    "zod": "^4.5.4"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
