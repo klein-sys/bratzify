@@ -26,6 +26,10 @@ All the following steps were successfully implemented and deployed.
 - Updated the root `package.json` with a script (`npm run dev`) to launch both Next.js (`:3000`) and Express (`:3001`) simultaneously.
 - Created a `Dockerfile` for seamless cloud deployment.
 
+### C. Cloud Deployment Hotfixes (Post-Launch)
+- **Vercel Blob Client Fix**: Rewrote `AudioUploader` and `BackgroundMediaUploader` to use native `FormData` POST requests to the Express `/api/upload` route, bypassing Vercel's Blob Client SDK which was failing due to the deleted Next.js API routes.
+- **Render OOM Fix (NAN%)**: Render's 512MB free tier crashed during runtime Webpack bundling. Created a custom `scripts/build-bundle.ts` script to pre-compile the Remotion bundle during the Docker image build phase, skipping the heavy bundling step at runtime.
+- **Chromium Dependencies**: Fixed `Failed to launch browser process` by adding the missing `libxkbcommon0` library to the Linux Dockerfile for headless Chrome.
 ## 3. Live Environments
 - **Frontend**: Hosted on Vercel (`https://bratzify.vercel.app`)
 - **Backend**: Hosted on Render (`https://bratzify.onrender.com`)
