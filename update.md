@@ -36,6 +36,7 @@ All the following steps were successfully implemented and deployed.
 ### D. Frontend UI Improvements
 - **Mobile Zooming Bug**: Added `viewport` export to `layout.tsx` (`maximum-scale=1`, `user-scalable=0`) to prevent iOS Safari from automatically zooming in and breaking the UI when users tap input fields or buttons.
 - **Responsive Mobile Layout**: Refactored `page.tsx` DOM ordering on mobile to ensure the Title and 'Start Over' buttons appear before the video preview, and scaled down the video preview's max-height to prevent it from eating the entire mobile screen.
+- **Premium Theme Overhaul (SyncID)**: Migrated the entire application from the original brutalist "brat green" style to a premium glassmorphic dark/light design system. Added `SyncLandingHero.tsx` as the new landing experience, integrated `Sora` and `JetBrains Mono` fonts, and replaced all color pickers with a clean Dark/Light mode toggle.
 
 ### E. Final Codebase Audit
 - **TypeScript Integrity**: Added a strict `tsconfig.json` to the `server/` directory enabling `esModuleInterop`. This resolved 100+ hidden module resolution errors in the backend IDE environment, guaranteeing 100% type safety.

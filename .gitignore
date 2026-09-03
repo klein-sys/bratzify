@@ -45,3 +45,9 @@ next-env.d.ts
 
 .vercel
 remotion-bundle/  
+
+# Agent & AI config files
+.agents/
+AGENTS.md
+skills-lock.json
+.gemini/

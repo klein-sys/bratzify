@@ -1,69 +1,99 @@
 @import "tailwindcss";
 
+/* We import the component CSS so it's globally available */
+@import "../components/SyncLandingHero.css";
+
+/* Base Tailwind mappings for the new premium theme */
 :root {
-  --background: #ffffff;
-  --foreground: #000000;
-  --theme-accent: #8ACE00;
-  --accent-foreground: #000000;
+  /* Default to dark mode colors if not overridden by data-theme */
+  --background: #090a0f;
+  --foreground: #f8fafc;
+  --theme-accent: #3b82f6; /* A subtle blue accent for premium feel */
+  --accent-foreground: #ffffff;
+}
+
+[data-theme="light"] {
+  --background: #f8fafc;
+  --foreground: #0f172a;
+  --theme-accent: #2563eb;
+  --accent-foreground: #ffffff;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --color-background: var(--bg, var(--background));
+  --color-foreground: var(--text, var(--foreground));
   --color-theme-accent: var(--theme-accent);
   --color-accent-foreground: var(--accent-foreground);
-  --font-sans: Arial, Helvetica, sans-serif;
-  --font-mono: monospace;
+  --font-sans: var(--font-sora), "Sora", sans-serif;
+  --font-mono: var(--font-jetbrains-mono), "JetBrains Mono", monospace;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-background);
+  color: var(--color-foreground);
+  font-family: var(--font-sans);
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-.brat-text {
-  font-family: Arial, Helvetica, sans-serif;
-  font-weight: 400;
-  letter-spacing: -1.5px;
-  line-height: 1.1;
-  filter: blur(0.6px);
+/* 
+  Premium / Glassmorphic UI Components
+  Replacing old "brutal-card" and "brutal-btn"
+*/
+
+.glass-panel {
+  background-color: var(--panel-bg, rgba(9, 10, 15, 0.7));
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--line, rgba(255, 255, 255, 0.12));
+  transition: background-color 0.3s ease, border-color 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  border-radius: 8px;
+  box-shadow: 0 4px 24px -4px rgba(0, 0, 0, 0.1);
 }
 
-.brutal-card {
-  background-color: var(--background);
-  border: 4px solid var(--foreground);
-  box-shadow: 8px 8px 0px var(--foreground);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+.glass-panel:hover {
+  border-color: var(--line-strong, rgba(255, 255, 255, 0.28));
+  box-shadow: 0 8px 32px -4px rgba(0, 0, 0, 0.2);
 }
 
-.brutal-card:hover {
-  transform: translate(2px, 2px);
-  box-shadow: 6px 6px 0px var(--foreground);
+.premium-btn {
+  background-color: var(--fill-solid, rgba(255, 255, 255, 0.12));
+  color: var(--btn-solid-text, #ffffff);
+  border: 1px solid transparent;
+  transition: all 0.2s var(--ease-premium, cubic-bezier(0.16, 1, 0.3, 1));
+  font-family: var(--font-mono);
+  font-size: 13px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  padding: 12px 20px;
+  border-radius: 4px;
+  cursor: pointer;
 }
 
-.brutal-btn {
-  background-color: var(--background);
-  color: var(--foreground);
-  border: 4px solid var(--foreground);
-  box-shadow: 4px 4px 0px var(--foreground);
-  transition: transform 0.1s ease, box-shadow 0.1s ease, background-color 0.2s ease;
-  font-family: Arial, Helvetica, sans-serif;
-  font-weight: bold;
-}
-
-.brutal-btn:hover {
+.premium-btn:hover {
   background-color: var(--theme-accent);
   color: var(--accent-foreground);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
-.brutal-btn:active {
-  transform: translate(4px, 4px);
-  box-shadow: 0px 0px 0px var(--foreground);
+.premium-btn:active {
+  transform: translateY(0);
 }
 
-/* Add a subtle dot grid pattern to the body for texture */
+.premium-btn.ghost {
+  background-color: var(--fill-ghost, rgba(255, 255, 255, 0.05));
+  color: var(--text, #f8fafc);
+  border-color: var(--line, rgba(255, 255, 255, 0.12));
+}
+
+.premium-btn.ghost:hover {
+  background-color: var(--fill-solid, rgba(255, 255, 255, 0.12));
+  border-color: var(--line-strong, rgba(255, 255, 255, 0.28));
+}
+
+/* Subtle dot grid pattern */
 .bg-grid-pattern {
-  background-size: 20px 20px;
-  background-image: radial-gradient(var(--foreground) 1px, transparent 1px);
+  background-size: 24px 24px;
+  background-image: radial-gradient(var(--line, rgba(255,255,255,0.12)) 1px, transparent 1px);
 }
+
