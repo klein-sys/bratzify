@@ -29,7 +29,8 @@ All the following steps were successfully implemented and deployed.
 ### C. Cloud Deployment Hotfixes (Post-Launch)
 - **Vercel Blob Client Fix**: Rewrote `AudioUploader` and `BackgroundMediaUploader` to use native `FormData` POST requests to the Express `/api/upload` route, bypassing Vercel's Blob Client SDK which was failing due to the deleted Next.js API routes.
 - **Render OOM Fix (NAN%)**: Render's 512MB free tier crashed during runtime Webpack bundling. Created a custom `scripts/build-bundle.ts` script to pre-compile the Remotion bundle during the Docker image build phase, skipping the heavy bundling step at runtime.
-- **Chromium Dependencies**: Fixed `Failed to launch browser process` by adding the missing `libxkbcommon0` library to the Linux Dockerfile for headless Chrome.
+- **Chromium OS Dependencies (10% Hang)**: Fixed `Failed to launch browser process` by upgrading the Docker base image to `node:20-bookworm` (Debian 12), fulfilling Remotion's strict `glibc 2.35+` requirement, and installing all recommended `libxkbcommon-dev` and associated Chrome libraries.
+- **Chromium Download Timeout (10% Hang)**: Downloading a 200MB Chrome binary at runtime on a 0.1 CPU Render free-tier takes too long and freezes the export. Fixed by pre-downloading Chrome during the Docker build using `npx -p @remotion/cli@4.0.519 remotion browser ensure`.
 ## 3. Live Environments
 - **Frontend**: Hosted on Vercel (`https://bratzify.vercel.app`)
 - **Backend**: Hosted on Render (`https://bratzify.onrender.com`)
