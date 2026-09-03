@@ -31,6 +31,7 @@ All the following steps were successfully implemented and deployed.
 - **Render OOM Fix (NAN%)**: Render's 512MB free tier crashed during runtime Webpack bundling. Created a custom `scripts/build-bundle.ts` script to pre-compile the Remotion bundle during the Docker image build phase, skipping the heavy bundling step at runtime.
 - **Chromium OS Dependencies (10% Hang)**: Fixed `Failed to launch browser process` by upgrading the Docker base image to `node:20-bookworm` (Debian 12), fulfilling Remotion's strict `glibc 2.35+` requirement, and installing all recommended `libxkbcommon-dev` and associated Chrome libraries.
 - **Chromium Download Timeout (10% Hang)**: Downloading a 200MB Chrome binary at runtime on a 0.1 CPU Render free-tier takes too long and freezes the export. Fixed by pre-downloading Chrome during the Docker build using `npx -p @remotion/cli@4.0.519 remotion browser ensure`.
+- **Runtime OOM Crash (NAN%)**: If the progress bar disappears and shows `NAN%` halfway through, it means the server exceeded its 512MB RAM limit and crashed. Fixed by hardcoding `concurrency: 1` in `server/index.ts` to guarantee Remotion only spawns a single Chrome tab at a time.
 ## 3. Live Environments
 - **Frontend**: Hosted on Vercel (`https://bratzify.vercel.app`)
 - **Backend**: Hosted on Render (`https://bratzify.onrender.com`)

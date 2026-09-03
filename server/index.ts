@@ -142,6 +142,7 @@ app.post('/api/render', async (req, res) => {
           outputLocation: outputPath,
           inputProps: { lyrics, audioUrl: finalAudioUrl, startFrameOffset, ...templateOptions },
           imageFormat: "jpeg",
+          concurrency: 1, // CRITICAL: Force 1 Chrome tab to prevent OOM on Render 512MB free tier
           onProgress: ({ progress }: { progress: number }) => {
             updateRenderProgress(renderId, { progress: 0.1 + (progress * 0.9) });
           }
@@ -150,7 +151,6 @@ app.post('/api/render', async (req, res) => {
         if (quality === "fast") {
           renderOptions.crf = 28;
           renderOptions.scale = 0.5;
-          renderOptions.concurrency = "100%";
         }
 
         await renderMedia(renderOptions);
