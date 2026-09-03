@@ -140,9 +140,22 @@ export default function Home() {
   return (
     <main className="flex flex-col lg:block min-h-[100dvh] bg-background text-foreground selection:bg-theme-accent selection:text-foreground transition-colors duration-500 bg-grid-pattern overflow-x-hidden overflow-y-auto lg:overflow-hidden relative font-sans">
       
+      {/* Mobile Title (Only visible on mobile) */}
+      <div className="lg:hidden p-4 pb-0 z-10 relative pointer-events-auto">
+        <div className="brutal-card p-4 flex flex-col gap-2">
+          <div>
+            <h1 className="text-4xl font-bold brat-text tracking-tighter text-foreground mb-1">bratzify.fm</h1>
+            <p className="text-md font-bold text-foreground opacity-70 brat-text">brat lyric video generator.</p>
+          </div>
+          {(audioUrl || syncedLyrics.length > 0) && (
+            <button onClick={handleReset} className="brutal-btn w-fit px-4 py-1 text-md">start over</button>
+          )}
+        </div>
+      </div>
+
       {/* Centerpiece: Interactive Canvas (Video Preview) */}
-      <div className="relative lg:absolute lg:inset-0 flex items-center justify-center p-4 lg:p-0 pointer-events-none z-0 order-first lg:order-none mt-4 lg:mt-0">
-        <div className="brutal-card aspect-[9/16] w-full max-w-[360px] lg:max-w-[420px] h-auto max-h-[85vh] relative overflow-hidden pointer-events-auto bg-foreground/5 transition-transform hover:scale-[1.02] duration-300 flex items-center justify-center">
+      <div className="relative lg:absolute lg:inset-0 flex items-center justify-center p-4 lg:p-0 pointer-events-none z-0 mt-2 lg:mt-0">
+        <div className="brutal-card aspect-[9/16] w-full max-w-[280px] sm:max-w-[360px] lg:max-w-[420px] h-auto max-h-[55vh] sm:max-h-[65vh] lg:max-h-[85vh] relative overflow-hidden pointer-events-auto bg-foreground/5 transition-transform hover:scale-[1.02] duration-300 flex items-center justify-center">
           {!audioUrl ? (
             <div className="absolute inset-0 flex flex-col items-center justify-center bg-theme-accent text-accent-foreground">
               <div className="absolute inset-0 opacity-20 bg-grid-pattern" style={{ backgroundSize: '40px 40px', animation: 'slide-down 2s linear infinite' }} />
@@ -200,7 +213,7 @@ export default function Home() {
         {/* Left Floating Panel */}
         <div className="flex flex-col gap-6 w-full lg:w-[450px] h-auto lg:h-full overflow-y-visible lg:overflow-y-auto pointer-events-auto pb-8 lg:pb-32 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
           
-          <div className="brutal-card p-6 flex flex-col gap-4">
+          <div className="brutal-card p-6 hidden lg:flex flex-col gap-4">
             <div>
               <h1 className="text-6xl lg:text-7xl font-bold brat-text tracking-tighter text-foreground mb-1">bratzify.fm</h1>
               <p className="text-xl font-bold text-foreground opacity-70 brat-text">brat lyric video generator.</p>
