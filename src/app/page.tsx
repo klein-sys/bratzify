@@ -130,9 +130,9 @@ export default function Home() {
         }
       }, 1000);
 
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
-      alert("Export failed. See console for details.");
+      alert("Export failed: " + (error.message || "Unknown error") + ". See console for details.");
       setIsExporting(false);
     }
   };

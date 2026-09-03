@@ -21,14 +21,21 @@ export default function AudioUploader({ onAudioSelect }: AudioUploaderProps) {
       try {
         setIsUploading(true);
         
-        const filename = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.\-_]/g, '')}`;
+        const formData = new FormData();
+        formData.append("file", file);
         
-        const newBlob = await upload(filename, file, {
-          access: 'public',
-          handleUploadUrl: `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/upload/blob`,
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/upload`, {
+          method: "POST",
+          body: formData
         });
         
-        onAudioSelect(newBlob.url);
+        const data = await res.json();
+        
+        if (res.ok && data.url) {
+          onAudioSelect(data.url);
+        } else {
+          alert("Upload failed: " + (data.error || "Unknown error"));
+        }
       } catch (error: any) {
         console.error(error);
         alert("Upload failed: " + (error.message || "Check console."));
