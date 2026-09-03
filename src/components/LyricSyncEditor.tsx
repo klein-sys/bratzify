@@ -4,6 +4,8 @@ import React, { useEffect, useRef, useState } from "react";
 import WaveSurfer from "wavesurfer.js";
 import { Play, Pause, RotateCcw, CheckCircle2, Search, Loader2, X } from "lucide-react";
 import clsx from "clsx";
+import { motion, AnimatePresence } from "framer-motion";
+import RegionsPlugin from "wavesurfer.js/plugins/regions";
 
 export interface SyncedLyric {
   id: string;
@@ -21,6 +23,8 @@ export default function LyricSyncEditor({ audioUrl, onSyncComplete }: LyricSyncE
   const containerRef = useRef<HTMLDivElement>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);
   const wavesurferRef = useRef<WaveSurfer | null>(null);
+  const regionsRef = useRef<RegionsPlugin | null>(null);
+  const isSpaceDownRef = useRef(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [rawLyrics, setRawLyrics] = useState("");
   const [syncedLines, setSyncedLines] = useState<SyncedLyric[]>([]);
@@ -48,6 +52,21 @@ export default function LyricSyncEditor({ audioUrl, onSyncComplete }: LyricSyncE
 
     ws.load(audioUrl);
 
+    const wsRegions = ws.registerPlugin(RegionsPlugin.create());
+    regionsRef.current = wsRegions;
+
+    wsRegions.on("region-updated", (region) => {
+      setSyncedLines((prev) => {
+        const newLines = [...prev];
+        const idx = newLines.findIndex((l) => l.id === region.id);
+        if (idx !== -1) {
+          newLines[idx].start = region.start;
+          newLines[idx].end = region.end;
+        }
+        return newLines;
+      });
+    });
+
     ws.on("play", () => setIsPlaying(true));
     ws.on("pause", () => setIsPlaying(false));
     ws.on("finish", () => setIsPlaying(false));
@@ -64,7 +83,16 @@ export default function LyricSyncEditor({ audioUrl, onSyncComplete }: LyricSyncE
   };
 
   const deleteLyric = (index: number) => {
+    const lyricToDelete = syncedLines[index];
     setSyncedLines((prev) => prev.filter((_, i) => i !== index));
+    if (lyricToDelete && regionsRef.current) {
+      // Find the region by ID and remove it
+      const regions = regionsRef.current.getRegions();
+      const regionToRemove = regions.find(r => r.id === lyricToDelete.id);
+      if (regionToRemove) {
+        regionToRemove.remove();
+      }
+    }
     if (currentIndex > index) {
       setCurrentIndex((prev) => prev - 1);
     }
@@ -84,6 +112,7 @@ export default function LyricSyncEditor({ audioUrl, onSyncComplete }: LyricSyncE
     );
     setCurrentIndex(0);
     setMode("sync");
+    regionsRef.current?.clearRegions();
     
     wrapperRef.current?.focus();
   };
@@ -146,6 +175,19 @@ export default function LyricSyncEditor({ audioUrl, onSyncComplete }: LyricSyncE
       setSyncedLines(result);
       setCurrentIndex(result.length); // mark all as done
       setMode("sync");
+      
+      regionsRef.current?.clearRegions();
+      result.forEach(lyric => {
+        regionsRef.current?.addRegion({
+          id: lyric.id,
+          start: lyric.start,
+          end: lyric.end,
+          content: lyric.text,
+          color: "rgba(255, 122, 0, 0.4)",
+          drag: true,
+          resize: true,
+        });
+      });
     } catch (e) {
       setSearchError("Error searching for lyrics.");
     }
@@ -155,36 +197,67 @@ export default function LyricSyncEditor({ audioUrl, onSyncComplete }: LyricSyncE
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (mode !== "sync" || !wavesurferRef.current) return;
-      
       if (document.activeElement?.tagName === "TEXTAREA" || document.activeElement?.tagName === "INPUT") return;
+      if (e.code !== "Space") return;
+      e.preventDefault();
 
-      if (e.code === "Space") {
-        e.preventDefault();
-        const currentTime = wavesurferRef.current.getCurrentTime();
-        
+      if (!isSpaceDownRef.current) {
+        isSpaceDownRef.current = true;
         if (!isPlaying) {
           wavesurferRef.current.play();
-        } else {
-          if (currentIndex < syncedLines.length) {
-            setSyncedLines((prev) => {
-              const newLines = [...prev];
-              if (currentIndex > 0) {
-                 newLines[currentIndex - 1].end = Math.min(newLines[currentIndex - 1].start + 5, currentTime);
-              }
-              newLines[currentIndex].start = currentTime;
-              if (currentIndex === newLines.length - 1) {
-                 newLines[currentIndex].end = currentTime + 5;
-              }
-              return newLines;
+        }
+        
+        if (currentIndex < syncedLines.length) {
+          const currentTime = wavesurferRef.current.getCurrentTime();
+          setSyncedLines((prev) => {
+            const newLines = [...prev];
+            newLines[currentIndex].start = currentTime;
+            return newLines;
+          });
+        }
+      }
+    };
+
+    const handleKeyUp = (e: KeyboardEvent) => {
+      if (mode !== "sync" || !wavesurferRef.current) return;
+      if (e.code !== "Space") return;
+      e.preventDefault();
+
+      if (isSpaceDownRef.current) {
+        isSpaceDownRef.current = false;
+        if (currentIndex < syncedLines.length) {
+          const currentTime = wavesurferRef.current.getCurrentTime();
+          
+          setSyncedLines((prev) => {
+            const newLines = [...prev];
+            const start = newLines[currentIndex].start;
+            newLines[currentIndex].end = currentTime;
+            
+            // Add region visually
+            regionsRef.current?.addRegion({
+              id: newLines[currentIndex].id,
+              start: start,
+              end: currentTime,
+              content: newLines[currentIndex].text,
+              color: "rgba(255, 122, 0, 0.4)", // theme-accent with opacity
+              drag: true,
+              resize: true,
             });
-            setCurrentIndex((prev) => prev + 1);
-          }
+            
+            return newLines;
+          });
+          
+          setCurrentIndex((prev) => prev + 1);
         }
       }
     };
 
     window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
+    window.addEventListener("keyup", handleKeyUp);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("keyup", handleKeyUp);
+    };
   }, [mode, isPlaying, currentIndex, syncedLines]);
 
   const updateLyricTime = (index: number, field: "start" | "end", value: number) => {
@@ -219,12 +292,12 @@ export default function LyricSyncEditor({ audioUrl, onSyncComplete }: LyricSyncE
   }, [currentIndex, syncedLines, mode, onSyncComplete]);
 
   return (
-    <div className="w-full bg-theme-accent border-4 border-accent-foreground p-6 shadow-[8px_8px_0px_var(--color-foreground)] flex flex-col gap-4">
+    <div className="w-full brutal-card p-6 flex flex-col gap-4">
       <div className="flex justify-between items-center">
         <h2 className="text-4xl font-bold brat-text text-accent-foreground">lyric studio.</h2>
         {mode === "sync" && currentIndex < syncedLines.length && (
           <span className="text-xl bg-accent-foreground text-theme-accent px-4 py-1 animate-pulse font-bold brat-text">
-            tap spacebar to sync
+            hold spacebar to sync
           </span>
         )}
       </div>
@@ -279,7 +352,7 @@ export default function LyricSyncEditor({ audioUrl, onSyncComplete }: LyricSyncE
               <button 
                 onClick={handleAutoSync}
                 disabled={isSearching || !searchQuery}
-                className="bg-accent-foreground text-theme-accent px-6 py-3 font-bold brat-text text-xl hover:scale-[1.02] transition-transform disabled:opacity-50 flex items-center gap-2"
+                className="brutal-btn px-6 py-3 disabled:opacity-50 flex items-center gap-2"
               >
                 {isSearching ? <><Loader2 className="animate-spin" /> searching...</> : "auto-sync"}
               </button>
@@ -306,7 +379,7 @@ export default function LyricSyncEditor({ audioUrl, onSyncComplete }: LyricSyncE
             <button
               onClick={startSync}
               disabled={!audioUrl || rawLyrics.trim().length === 0}
-              className="bg-accent-foreground text-theme-accent py-4 font-bold text-3xl brat-text disabled:opacity-50 disabled:cursor-not-allowed hover:scale-[1.02] transition-all mt-2 shadow-[4px_4px_0px_rgba(0,0,0,0.3)]"
+              className="brutal-btn py-4 text-3xl disabled:opacity-50 disabled:cursor-not-allowed mt-2"
             >
               start manual sync
             </button>
@@ -314,9 +387,14 @@ export default function LyricSyncEditor({ audioUrl, onSyncComplete }: LyricSyncE
         </div>
       ) : (
         <div className="bg-transparent border-4 border-accent-foreground p-4 h-64 overflow-y-auto space-y-2">
+          <AnimatePresence>
           {syncedLines.map((line, i) => (
-            <div 
+            <motion.div 
               key={line.id}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              transition={{ duration: 0.2 }}
               className={clsx(
                 "p-3 flex items-center justify-between transition-colors border-2",
                 i === currentIndex ? "bg-accent-foreground text-theme-accent border-accent-foreground" : 
@@ -326,23 +404,8 @@ export default function LyricSyncEditor({ audioUrl, onSyncComplete }: LyricSyncE
               <div className="flex flex-col">
                 <span className="font-bold brat-text text-3xl">{line.text}</span>
                 {mode === "sync" && currentIndex >= syncedLines.length && (
-                  <div className="flex gap-2 items-center text-accent-foreground/70 mt-2 font-mono text-sm">
-                    <span>start:</span>
-                    <input 
-                      type="number" 
-                      step="0.05"
-                      className="w-16 bg-transparent border-b-2 border-accent-foreground/50 text-center outline-none focus:border-accent-foreground text-accent-foreground"
-                      value={Number(line.start).toFixed(2)}
-                      onChange={(e) => updateLyricTime(i, "start", parseFloat(e.target.value))}
-                    />
-                    <span className="ml-2">end:</span>
-                    <input 
-                      type="number" 
-                      step="0.05"
-                      className="w-16 bg-transparent border-b-2 border-accent-foreground/50 text-center outline-none focus:border-accent-foreground text-accent-foreground"
-                      value={Number(line.end).toFixed(2)}
-                      onChange={(e) => updateLyricTime(i, "end", parseFloat(e.target.value))}
-                    />
+                  <div className="text-accent-foreground/70 mt-2 font-mono text-sm">
+                    Drag blocks on the waveform above to adjust timings.
                   </div>
                 )}
               </div>
@@ -357,20 +420,25 @@ export default function LyricSyncEditor({ audioUrl, onSyncComplete }: LyricSyncE
                   <X className="w-6 h-6" />
                 </button>
               </div>
-            </div>
+            </motion.div>
           ))}
+          </AnimatePresence>
           {currentIndex >= syncedLines.length && syncedLines.length > 0 && (
-             <div className="flex flex-col items-center mt-4 gap-2">
+             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col items-center mt-4 gap-2">
                <div className="p-4 text-center font-bold text-accent-foreground brat-text text-4xl animate-pulse">
                   sync complete!
                </div>
                <button 
-                 onClick={() => onSyncComplete(syncedLines)}
-                 className="bg-accent-foreground text-theme-accent px-4 py-2 font-bold brat-text text-xl hover:scale-[1.02] transition-transform"
+                 onClick={() => {
+                   onSyncComplete(syncedLines);
+                   // Ensure regions state matches one final time just in case
+                   setSyncedLines([...syncedLines]);
+                 }}
+                 className="brutal-btn px-4 py-2 text-xl"
                >
                  apply time tweaks
                </button>
-             </div>
+             </motion.div>
           )}
         </div>
       )}

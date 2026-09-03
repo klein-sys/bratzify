@@ -3,6 +3,7 @@
 import React, { useState, useRef } from "react";
 import { Upload, Link as LinkIcon } from "lucide-react";
 import clsx from "clsx";
+import { upload } from "@vercel/blob/client";
 
 interface AudioUploaderProps {
   onAudioSelect: (url: string) => void;
@@ -19,20 +20,18 @@ export default function AudioUploader({ onAudioSelect }: AudioUploaderProps) {
     if (file && (file.type.includes("audio") || file.name.endsWith(".mp3") || file.name.endsWith(".wav"))) {
       try {
         setIsUploading(true);
-        const formData = new FormData();
-        formData.append("file", file);
         
-        const res = await fetch("/api/upload", { method: "POST", body: formData });
-        const data = await res.json();
+        const filename = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.\-_]/g, '')}`;
         
-        if (res.ok && data.url) {
-          onAudioSelect(data.url);
-        } else {
-          alert("Upload failed: " + (data.error || "Unknown error"));
-        }
-      } catch (error) {
+        const newBlob = await upload(filename, file, {
+          access: 'public',
+          handleUploadUrl: `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/upload/blob`,
+        });
+        
+        onAudioSelect(newBlob.url);
+      } catch (error: any) {
         console.error(error);
-        alert("Upload failed. Check console.");
+        alert("Upload failed: " + (error.message || "Check console."));
       } finally {
         setIsUploading(false);
       }
@@ -49,15 +48,34 @@ export default function AudioUploader({ onAudioSelect }: AudioUploaderProps) {
     }
   };
 
-  const handleUrlSubmit = (e: React.FormEvent) => {
+  const handleUrlSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (urlInput) {
-      onAudioSelect(urlInput);
+      try {
+        setIsUploading(true);
+        const formData = new FormData();
+        formData.append("url", urlInput);
+        
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/upload`, { method: "POST", body: formData });
+        const data = await res.json();
+        
+        if (res.ok && data.url) {
+          onAudioSelect(data.url);
+          setUrlInput("");
+        } else {
+          alert("URL import failed: " + (data.error || "Unknown error"));
+        }
+      } catch (error) {
+        console.error(error);
+        alert("URL import failed. Check console.");
+      } finally {
+        setIsUploading(false);
+      }
     }
   };
 
   return (
-    <div className="w-full bg-theme-accent border-4 border-accent-foreground p-6 shadow-[8px_8px_0px_var(--color-foreground)]">
+    <div className="w-full brutal-card p-6">
       <h2 className="text-4xl font-bold mb-4 brat-text text-accent-foreground">load your track.</h2>
       
       <div 
@@ -107,7 +125,7 @@ export default function AudioUploader({ onAudioSelect }: AudioUploaderProps) {
         </div>
         <button 
           type="submit"
-          className="bg-accent-foreground text-theme-accent px-6 py-2 font-bold brat-text text-2xl hover:scale-105 transition-transform"
+          className="brutal-btn px-6 py-2 text-2xl"
         >
           load
         </button>

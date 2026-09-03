@@ -1,14 +1,28 @@
 import React from "react";
-import { AbsoluteFill, useVideoConfig, useCurrentFrame, Audio, interpolate } from "remotion";
-import { SyncedLyric } from "../components/LyricSyncEditor";
+import { AbsoluteFill, useVideoConfig, useCurrentFrame, Audio, interpolate, Img, OffthreadVideo } from "remotion";
+import { SyncedLyric } from "../../components/LyricSyncEditor";
 
 export interface LyricTemplateProps {
   lyrics: SyncedLyric[];
   audioUrl?: string | null;
   startFrameOffset?: number;
+  textColor?: string;
+  bgColor?: string;
+  fontFamily?: string;
+  textTransform?: "lowercase" | "uppercase" | "none";
+  backgroundMedia?: string;
 }
 
-export const BratzTemplate: React.FC<LyricTemplateProps> = ({ lyrics, audioUrl, startFrameOffset = 0 }) => {
+export const BratzTemplate: React.FC<LyricTemplateProps> = ({ 
+  lyrics, 
+  audioUrl, 
+  startFrameOffset = 0,
+  textColor = "black",
+  bgColor = "white",
+  fontFamily = "Arial, Helvetica, sans-serif",
+  textTransform = "lowercase",
+  backgroundMedia = ""
+}) => {
   const { fps } = useVideoConfig();
   const frame = useCurrentFrame();
   const globalFrame = frame + startFrameOffset;
@@ -35,23 +49,37 @@ export const BratzTemplate: React.FC<LyricTemplateProps> = ({ lyrics, audioUrl, 
     Math.max(fps, words.length * fps * 0.3)
   );
   
+  const isVideo = backgroundMedia?.match(/\.(mp4|webm|mov|mkv)(\?.*)?$/i);
+  
   return (
-    <AbsoluteFill style={{ backgroundColor: "white", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "4rem" }}>
+    <AbsoluteFill style={{ backgroundColor: bgColor, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "4rem" }}>
+      {backgroundMedia && isVideo && (
+        <OffthreadVideo
+          src={backgroundMedia}
+          style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", opacity: 0.8 }}
+        />
+      )}
+      {backgroundMedia && !isVideo && (
+        <Img 
+          src={backgroundMedia} 
+          style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", opacity: 0.8 }} 
+        />
+      )}
       {audioUrl && <Audio src={audioUrl} startFrom={startFrameOffset} />}
       {activeLyric && (
-        <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }} key={activeLyric.id}>
+        <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", position: "relative", zIndex: 10 }} key={activeLyric.id}>
           <h1 
             style={{ 
               fontSize: "160px",
               lineHeight: 0.9,
-              color: "black",
-              textTransform: "lowercase",
+              color: textColor,
+              textTransform,
               width: "100%",
               transform: "scaleY(1.25)", 
               transformOrigin: "center",
               textAlign: "justify",
               textAlignLast: "justify",
-              fontFamily: "Arial, Helvetica, sans-serif",
+              fontFamily,
               fontWeight: 400,
               letterSpacing: "-1.5px",
               filter: "blur(0.6px)",

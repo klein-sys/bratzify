@@ -3,12 +3,10 @@ import { Composition } from "remotion";
 import { TEMPLATES } from "../lib/templates";
 import { BratzTemplate } from "./templates/BratzTemplate";
 import { FisheyeTemplate } from "./templates/FisheyeTemplate";
-import { MinimalistTemplate } from "./templates/MinimalistTemplate";
 
 const TemplateComponents: Record<string, React.FC<any>> = {
   bratz: BratzTemplate,
   fisheye: FisheyeTemplate,
-  minimalist: MinimalistTemplate,
 };
 
 export const RemotionRoot: React.FC = () => {

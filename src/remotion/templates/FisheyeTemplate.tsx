@@ -1,5 +1,5 @@
 import React from "react";
-import { AbsoluteFill, useVideoConfig, useCurrentFrame, Audio, interpolate, spring } from "remotion";
+import { AbsoluteFill, useVideoConfig, useCurrentFrame, Audio, interpolate, spring, Img, OffthreadVideo } from "remotion";
 import { SyncedLyric } from "../../components/LyricSyncEditor";
 
 export interface FisheyeTemplateProps {
@@ -9,6 +9,7 @@ export interface FisheyeTemplateProps {
   textColor?: string;
   bgColor?: string;
   effect?: string;
+  backgroundMedia?: string;
 }
 
 export const FisheyeTemplate: React.FC<FisheyeTemplateProps> = ({ 
@@ -17,7 +18,8 @@ export const FisheyeTemplate: React.FC<FisheyeTemplateProps> = ({
   startFrameOffset = 0,
   textColor = "#FF7A00",
   bgColor = "#050505",
-  effect = "none"
+  effect = "none",
+  backgroundMedia = ""
 }) => {
   const { fps, width, height } = useVideoConfig();
   const frame = useCurrentFrame();
@@ -44,8 +46,22 @@ export const FisheyeTemplate: React.FC<FisheyeTemplateProps> = ({
     Math.max(fps, words.length * fps * 0.3)
   );
 
+  const isVideo = backgroundMedia?.match(/\.(mp4|webm|mov|mkv)(\?.*)?$/i);
+
   return (
     <AbsoluteFill style={{ backgroundColor: bgColor }}>
+      {backgroundMedia && isVideo && (
+        <OffthreadVideo
+          src={backgroundMedia}
+          style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", opacity: 0.6 }}
+        />
+      )}
+      {backgroundMedia && !isVideo && (
+        <Img 
+          src={backgroundMedia} 
+          style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", opacity: 0.6 }} 
+        />
+      )}
       {audioUrl && <Audio src={audioUrl} startFrom={startFrameOffset} />}
       
       {/* True SVG Spherical Fisheye Lens */}
@@ -142,15 +158,22 @@ export const FisheyeTemplate: React.FC<FisheyeTemplateProps> = ({
 
       {/* Effects Overlays */}
       {effect === "rain" && (
-        <AbsoluteFill style={{ opacity: 0.15, pointerEvents: "none" }}>
-          <svg width="100%" height="100%">
-            <filter id="noise">
-              <feTurbulence type="fractalNoise" baseFrequency="0.01 0.6" numOctaves="2" stitchTiles="stitch" />
-              <feColorMatrix type="matrix" values="1 0 0 0 0, 1 0 0 0 0, 1 0 0 0 0, 0 0 0 3 -1" />
-            </filter>
-            <rect width="100%" height="100%" filter="url(#noise)" transform={`translate(0, ${(globalFrame * 80) % 1920})`} />
-            <rect width="100%" height="100%" filter="url(#noise)" transform={`translate(0, ${((globalFrame * 80) + 960) % 1920 - 1920})`} />
-          </svg>
+        <AbsoluteFill style={{ opacity: 0.5, pointerEvents: "none", mixBlendMode: "screen", overflow: "hidden" }}>
+          <div style={{ width: "150%", height: "150%", position: "absolute", top: "-25%", left: "-25%", transform: "rotate(8deg)" }}>
+            <svg width="100%" height="100%">
+              <filter id="rain-noise">
+                {/* highly stretched vertical noise */}
+                <feTurbulence type="fractalNoise" baseFrequency="0.008 0.6" numOctaves="3" stitchTiles="stitch" />
+                {/* threshold to isolate raindrops and tint them slightly blue/white */}
+                <feColorMatrix type="matrix" values="0 0 0 0 0.7, 0 0 0 0 0.8, 0 0 0 0 1.0, 0 0 0 6 -4" />
+                {/* add motion blur to the drops */}
+                <feGaussianBlur stdDeviation="0.5 4" />
+              </filter>
+              
+              <rect width="100%" height="200%" filter="url(#rain-noise)" transform={`translate(0, ${(globalFrame * 140) % 1920})`} />
+              <rect width="100%" height="200%" filter="url(#rain-noise)" transform={`translate(0, ${((globalFrame * 140) % 1920) - 1920})`} />
+            </svg>
+          </div>
         </AbsoluteFill>
       )}
 

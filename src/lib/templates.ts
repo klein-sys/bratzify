@@ -1,7 +1,7 @@
 export interface TemplateOption {
   id: string;
   label: string;
-  type: "color" | "select";
+  type: "color" | "select" | "media";
   options?: { value: string; label: string }[]; // For "select" type
   defaultValue: string;
 }
@@ -31,17 +31,46 @@ export const TEMPLATES: Record<string, TemplateConfig> = {
       accent: "#8ACE00",
       accentForeground: "#000000",
       fontFamily: "Arial, Helvetica, sans-serif",
-    }
+    },
+    customOptions: [
+      { id: "textColor", label: "Text Color", type: "color", defaultValue: "#000000" },
+      { id: "bgColor", label: "Background Color", type: "color", defaultValue: "#ffffff" },
+      { 
+        id: "fontFamily", 
+        label: "Font Family", 
+        type: "select", 
+        defaultValue: "Arial, Helvetica, sans-serif", 
+        options: [
+          { value: "Arial, Helvetica, sans-serif", label: "Arial (Brat)" },
+          { value: "Impact, sans-serif", label: "Impact (Bold)" },
+          { value: "'Times New Roman', Times, serif", label: "Times New Roman" },
+          { value: "'Courier New', Courier, monospace", label: "Courier (Typewriter)" },
+          { value: "'Comic Sans MS', 'Comic Sans', cursive", label: "Comic Sans (Y2k)" }
+        ]
+      },
+      { 
+        id: "textTransform", 
+        label: "Text Casing", 
+        type: "select", 
+        defaultValue: "lowercase", 
+        options: [
+          { value: "lowercase", label: "lowercase" },
+          { value: "uppercase", label: "UPPERCASE" },
+          { value: "none", label: "Original" }
+        ]
+      },
+      { id: "backgroundMedia", label: "Background Media URL", type: "media", defaultValue: "" },
+    ]
   },
   fisheye: {
     id: "fisheye",
     name: "VHS Fisheye",
     description: "Gritty retro VHS look with a spherical fisheye distortion.",
     theme: {
-      background: "#050505",
-      foreground: "#FF7A00",
-      accent: "#FF7A00",
-      accentForeground: "#050505",
+      background: "#ffffff",
+      foreground: "#000000",
+      accent: "#8ACE00",
+      accentForeground: "#000000",
       fontFamily: "Impact, sans-serif",
     },
     customOptions: [
@@ -57,22 +86,8 @@ export const TEMPLATES: Record<string, TemplateConfig> = {
           { value: "rain", label: "Rain" },
           { value: "vhs", label: "VHS Glitch" }
         ]
-      }
-    ]
-  },
-  minimalist: {
-    id: "minimalist",
-    name: "Minimalist Editorial",
-    description: "Quiet sophistication. Clean editorial typography, massive negative space, and slow ambient depth.",
-    theme: {
-      background: "#F7F6F3",
-      foreground: "#111111",
-      accent: "#FBF3DB",
-      accentForeground: "#956400",
-      fontFamily: "'Playfair Display', serif",
-    },
-    customOptions: [
-      { id: "ambientColor", label: "Ambient Glow", type: "color", defaultValue: "#EAEAEA" }
+      },
+      { id: "backgroundMedia", label: "Background Media", type: "media", defaultValue: "" },
     ]
   }
 };

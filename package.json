@@ -3,19 +3,29 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "concurrently \"npm run dev:client\" \"npm run dev:server\"",
+    "dev:client": "next dev",
+    "dev:server": "tsx watch server/index.ts",
     "build": "next build",
     "start": "next start",
+    "start:server": "tsx server/index.ts",
     "lint": "eslint"
   },
   "dependencies": {
+    "@google/genai": "^2.20.0",
     "@remotion/bundler": "^4.0.519",
     "@remotion/google-fonts": "^4.0.519",
     "@remotion/player": "^4.0.519",
     "@remotion/renderer": "^4.0.519",
+    "@vercel/blob": "^2.8.0",
     "clsx": "^2.1.1",
+    "concurrently": "^10.0.5",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
     "framer-motion": "^13.1.1",
     "lucide-react": "^1.38.0",
+    "multer": "^2.3.0",
     "next": "16.3.4",
     "react": "19.2.8",
     "react-dom": "19.2.8",
@@ -25,12 +35,16 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/multer": "^2.2.0",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.3.4",
     "tailwindcss": "^4",
+    "tsx": "^4.23.13",
     "typescript": "^5"
   }
 }
