@@ -36,9 +36,9 @@ RUN npm install
 # Copy source code
 COPY . .
 
-# Build Next.js just in case it's needed for shared dependencies, though not strictly required for the backend
-# Actually we only need the backend, but Remotion relies on src/remotion/index.ts
-# so having the full source is fine.
+# Pre-compile the Remotion bundle during the Docker build!
+# This prevents Render's free tier from running out of memory and freezing at 5% during export.
+RUN npx remotion bundle src/remotion/index.ts --out-dir=remotion-bundle
 
 # Expose port
 EXPOSE 3001

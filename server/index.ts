@@ -4,7 +4,6 @@ import multer from 'multer';
 import dotenv from 'dotenv';
 import path from 'path';
 import fs from 'fs';
-import { bundle } from '@remotion/bundler';
 import { getCompositions, renderMedia } from '@remotion/renderer';
 import { put } from '@vercel/blob';
 
@@ -113,13 +112,10 @@ app.post('/api/render', async (req, res) => {
         const entryPoint = path.join(process.cwd(), "src/remotion/index.ts");
         let finalAudioUrl = audioUrl;
 
-        console.log(`[${renderId}] Starting bundling...`);
+        console.log(`[${renderId}] Using pre-compiled bundle...`);
         updateRenderProgress(renderId, { progress: 0.05 });
         
-        const bundleLocation = await bundle({
-          entryPoint,
-          webpackOverride: (config) => config,
-        });
+        const bundleLocation = path.join(process.cwd(), "remotion-bundle");
 
         console.log(`[${renderId}] Bundling complete. Fetching compositions...`);
         updateRenderProgress(renderId, { progress: 0.1 });
