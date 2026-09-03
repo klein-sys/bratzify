@@ -94,16 +94,16 @@ app.get('/api/progress', (req, res) => {
 // Gemini Sync endpoint
 app.post('/api/gemini-sync', async (req, res) => {
   try {
-    const { audioUrl } = req.body;
+    const { audioUrl, model = 'gemini-3.7-flash' } = req.body;
     if (!audioUrl) return res.status(400).json({ error: "Missing audioUrl" });
     if (!process.env.GEMINI_API_KEY) return res.status(500).json({ error: "GEMINI_API_KEY is missing on the server" });
 
-    console.log("[Gemini Sync] Downloading audio from:", audioUrl);
+    console.log(`[Gemini Sync] Downloading audio from: ${audioUrl}`);
     const fetchRes = await fetch(audioUrl);
     if (!fetchRes.ok) throw new Error("Failed to download audio for Gemini sync");
     
     const buffer = Buffer.from(await fetchRes.arrayBuffer());
-    console.log(`[Gemini Sync] Downloaded ${buffer.length} bytes. Sending to Gemini...`);
+    console.log(`[Gemini Sync] Downloaded ${buffer.length} bytes. Sending to ${model}...`);
 
     const ai = new GoogleGenAI({});
     
@@ -114,7 +114,7 @@ If the audio is completely instrumental or contains no vocals, return an empty a
 If the audio contains a long instrumental intro or break, make sure the start and end times strictly wrap the vocal lines. Don't let lyrics stay on screen during long instrumental breaks.`;
 
     const response = await ai.models.generateContent({
-      model: 'gemini-3.5-flash-lite',
+      model: model,
       contents: [
         {
           inlineData: {

@@ -38,6 +38,7 @@ export default function LyricSyncEditor({ audioUrl, onSyncComplete }: LyricSyncE
 
   const [isGeminiSyncing, setIsGeminiSyncing] = useState(false);
   const [geminiError, setGeminiError] = useState("");
+  const [geminiModel, setGeminiModel] = useState("gemini-3.5-flash-lite");
 
   useEffect(() => {
     if (!audioUrl || !containerRef.current) return;
@@ -206,7 +207,7 @@ export default function LyricSyncEditor({ audioUrl, onSyncComplete }: LyricSyncE
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/gemini-sync`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ audioUrl })
+        body: JSON.stringify({ audioUrl, model: geminiModel })
       });
       const data = await res.json();
       
@@ -420,8 +421,20 @@ export default function LyricSyncEditor({ audioUrl, onSyncComplete }: LyricSyncE
               <Sparkles className="w-6 h-6" /> AI Sync (Gemini)
             </label>
             <p className="text-accent-foreground/70 font-bold brat-text mb-4 leading-tight">
-              Can't find lyrics online? Let Gemini 3.7 Flash listen to your audio and transcribe it perfectly.
+              Can't find lyrics online? Let Gemini listen to your audio and transcribe it perfectly.
             </p>
+            <div className="flex flex-col gap-2 mb-4">
+              <label className="text-sm font-bold opacity-70 text-accent-foreground uppercase tracking-widest">Select Model</label>
+              <select 
+                className="w-full bg-background border-4 border-foreground px-4 py-3 font-bold brat-text text-xl outline-none focus:bg-foreground/5 text-foreground"
+                value={geminiModel}
+                onChange={(e) => setGeminiModel(e.target.value)}
+                disabled={isGeminiSyncing}
+              >
+                <option value="gemini-3.5-flash-lite">Gemini 3.5 Flash Lite (Fastest & Free-est)</option>
+                <option value="gemini-3.7-flash">Gemini 3.7 Flash (High Accuracy, may hit limits)</option>
+              </select>
+            </div>
             <button 
               onClick={handleGeminiSync}
               disabled={isGeminiSyncing || !audioUrl}
