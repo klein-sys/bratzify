@@ -38,7 +38,7 @@ COPY . .
 
 # Pre-compile the Remotion bundle during the Docker build!
 # This prevents Render's free tier from running out of memory and freezing at 5% during export.
-RUN npx remotion bundle src/remotion/index.ts --out-dir=remotion-bundle
+RUN npx tsx scripts/build-bundle.ts
 
 # Expose port
 EXPOSE 3001
