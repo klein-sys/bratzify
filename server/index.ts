@@ -94,7 +94,7 @@ app.get('/api/progress', (req, res) => {
 // Gemini Sync endpoint
 app.post('/api/gemini-sync', async (req, res) => {
   try {
-    const { audioUrl, model = 'gemini-3.7-flash' } = req.body;
+    const { audioUrl, model = 'gemini-3.7-flash', lyricsText } = req.body;
     if (!audioUrl) return res.status(400).json({ error: "Missing audioUrl" });
     if (!process.env.GEMINI_API_KEY) return res.status(500).json({ error: "GEMINI_API_KEY is missing on the server" });
 
@@ -107,11 +107,22 @@ app.post('/api/gemini-sync', async (req, res) => {
 
     const ai = new GoogleGenAI({});
     
-    const prompt = `You are a professional audio transcriber and lyric synchronizer.
+    let prompt = "";
+    if (lyricsText) {
+      prompt = `You are a professional audio transcriber and lyric synchronizer.
+Listen to the attached audio track. I am providing you with the exact lyrics below.
+Do NOT change the lyrics or hallucinate new ones. Your job is to strictly align these lyrics to the audio and return the exact 'start' and 'end' timestamps in seconds for each line.
+If the audio contains a long instrumental intro or break, make sure the start and end times strictly wrap the vocal lines. Don't let lyrics stay on screen during long instrumental breaks.
+
+EXACT LYRICS TO ALIGN:
+${lyricsText}`;
+    } else {
+      prompt = `You are a professional audio transcriber and lyric synchronizer.
 Listen to the attached audio track. Transcribe the vocal lyrics line by line.
 For each line, provide the exact 'start' timestamp and 'end' timestamp in seconds.
 If the audio is completely instrumental or contains no vocals, return an empty array.
 If the audio contains a long instrumental intro or break, make sure the start and end times strictly wrap the vocal lines. Don't let lyrics stay on screen during long instrumental breaks.`;
+    }
 
     const response = await ai.models.generateContent({
       model: model,

@@ -198,16 +198,21 @@ export default function LyricSyncEditor({ audioUrl, onSyncComplete }: LyricSyncE
     setIsSearching(false);
   };
 
-  const handleGeminiSync = async () => {
+  const handleGeminiSync = async (alignMode = false) => {
     if (!audioUrl) return;
     setIsGeminiSyncing(true);
     setGeminiError("");
+
+    let payload: any = { audioUrl, model: geminiModel };
+    if (alignMode && syncedLines.length > 0) {
+      payload.lyricsText = syncedLines.map(l => l.text).join('\n');
+    }
 
     try {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/gemini-sync`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ audioUrl, model: geminiModel })
+        body: JSON.stringify(payload)
       });
       const data = await res.json();
       
@@ -436,7 +441,7 @@ export default function LyricSyncEditor({ audioUrl, onSyncComplete }: LyricSyncE
               </select>
             </div>
             <button 
-              onClick={handleGeminiSync}
+              onClick={() => handleGeminiSync(false)}
               disabled={isGeminiSyncing || !audioUrl}
               className="brutal-btn w-full py-3 disabled:opacity-50 flex items-center justify-center gap-2 text-xl"
             >
@@ -471,8 +476,47 @@ export default function LyricSyncEditor({ audioUrl, onSyncComplete }: LyricSyncE
           </div>
         </div>
       ) : (
-        <div className="bg-transparent border-4 border-accent-foreground p-4 h-64 overflow-y-auto space-y-2">
-          <AnimatePresence>
+        <div className="flex flex-col gap-4">
+          {/* AI Align Button */}
+          {syncedLines.length > 0 && (
+            <div className="bg-accent-foreground/5 p-4 border-4 border-accent-foreground flex flex-col sm:flex-row items-center justify-between gap-4">
+               <div>
+                 <label className="text-xl font-bold brat-text flex items-center gap-2 text-accent-foreground">
+                    <Sparkles className="w-5 h-5" /> auto-align timestamps
+                 </label>
+                 <p className="text-accent-foreground/70 font-bold text-sm">
+                   Don't want to press spacebar? Let Gemini map these lyrics to the audio for you.
+                 </p>
+               </div>
+               <div className="flex flex-col gap-2 min-w-[200px]">
+                 <select 
+                  className="w-full bg-background border-2 border-foreground px-2 py-1 font-bold brat-text text-sm outline-none text-foreground"
+                  value={geminiModel}
+                  onChange={(e) => setGeminiModel(e.target.value)}
+                  disabled={isGeminiSyncing}
+                 >
+                  <option value="gemini-3.5-flash-lite">Gemini 3.5 Flash Lite</option>
+                  <option value="gemini-3.7-flash">Gemini 3.7 Flash</option>
+                 </select>
+                 <button 
+                   onClick={() => handleGeminiSync(true)}
+                   disabled={isGeminiSyncing || !audioUrl}
+                   className="brutal-btn px-4 py-2 text-sm w-full flex items-center justify-center gap-2 disabled:opacity-50"
+                 >
+                   {isGeminiSyncing ? <><Loader2 className="w-4 h-4 animate-spin" /> Aligning...</> : "✨ Align Now"}
+                 </button>
+               </div>
+            </div>
+          )}
+
+          <div className="bg-transparent border-4 border-accent-foreground p-4 h-64 overflow-y-auto space-y-2 relative">
+            {isGeminiSyncing && (
+              <div className="absolute inset-0 bg-background/80 backdrop-blur-sm z-10 flex flex-col items-center justify-center text-accent-foreground font-bold brat-text text-2xl">
+                <Loader2 className="w-12 h-12 animate-spin mb-4" />
+                Gemini is listening to your audio...
+              </div>
+            )}
+            <AnimatePresence>
           {syncedLines.map((line, i) => (
             <motion.div 
               key={line.id}
@@ -525,6 +569,7 @@ export default function LyricSyncEditor({ audioUrl, onSyncComplete }: LyricSyncE
                </button>
              </motion.div>
           )}
+        </div>
         </div>
       )}
     </div>
