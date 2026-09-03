@@ -32,6 +32,11 @@ All the following steps were successfully implemented and deployed.
 - **Chromium OS Dependencies (10% Hang)**: Fixed `Failed to launch browser process` by upgrading the Docker base image to `node:20-bookworm` (Debian 12), fulfilling Remotion's strict `glibc 2.35+` requirement, and installing all recommended `libxkbcommon-dev` and associated Chrome libraries.
 - **Chromium Download Timeout (10% Hang)**: Downloading a 200MB Chrome binary at runtime on a 0.1 CPU Render free-tier takes too long and freezes the export. Fixed by pre-downloading Chrome during the Docker build using `npx -p @remotion/cli@4.0.519 remotion browser ensure`.
 - **Runtime OOM Crash (NAN%)**: If the progress bar disappears and shows `NAN%` halfway through, it means the server exceeded its 512MB RAM limit and crashed. Fixed by hardcoding `concurrency: 1` in `server/index.ts` to guarantee Remotion only spawns a single Chrome tab at a time.
+
+### D. Frontend UI Improvements
+- **Mobile Zooming Bug**: Added `viewport` export to `layout.tsx` (`maximum-scale=1`, `user-scalable=0`) to prevent iOS Safari from automatically zooming in and breaking the UI when users tap input fields or buttons.
+- **Responsive Mobile Layout**: Refactored `page.tsx` DOM ordering on mobile to ensure the Title and 'Start Over' buttons appear before the video preview, and scaled down the video preview's max-height to prevent it from eating the entire mobile screen.
+
 ## 3. Live Environments
 - **Frontend**: Hosted on Vercel (`https://bratzify.vercel.app`)
 - **Backend**: Hosted on Render (`https://bratzify.onrender.com`)
