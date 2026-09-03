@@ -23,6 +23,7 @@ RUN apt-get update && apt-get install -y \
     libdrm2 \
     libxss1 \
     libgbm1 \
+    libxkbcommon0 \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
