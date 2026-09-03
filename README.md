@@ -17,6 +17,17 @@ With Bratzify, you can:
 
 ---
 
+## 🛠 Tech Stack
+
+- **Frontend:** Next.js 15, React 19, Tailwind CSS
+- **Video Engine:** Remotion, FFmpeg
+- **Backend:** Node.js, Express.js
+- **AI/Transcriptions:** Google Gemini API (Gemini 1.5 Flash)
+- **APIs:** LRCLIB (Lyrics syncing)
+- **Infrastructure:** Vercel (Static Frontend), Render (Dockerized Backend)
+
+---
+
 ## ⚙️ How it works
 
 The project is built on a split-architecture design to ensure blazing-fast UI performance while handling incredibly heavy video rendering in the cloud.
